@@ -1,22 +1,28 @@
 using lab3.Models;
+using lab3.Models.Entities;
 using lab3.Models.Mappings;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace lab3.Controllers
 {
-    public class BlogController : Controller
+    public class BlogController(BlogContext context) : Controller
     {
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var entities = InMemoryBlogStore.GetAll();
-            var viewModels = entities.Select(e => e.ToViewModel()); 
+            var entities = await context.BlogArticles.ToListAsync();
+            var viewModels = entities.Select(x => x.ToViewModel());
             return View(viewModels);
         }
 
-        public IActionResult Article(string id)
+        public async Task<IActionResult> Article(string id)
         {
-            var post = InMemoryBlogStore.GetById(id);
-            if (post == null) return NotFound();
+            var post = await context.BlogArticles.FirstOrDefaultAsync(x => x.Id == id);
+            if (post == null)
+            {
+                return NotFound();
+            }
             var viewModel = post.ToViewModel();
             return View(viewModel);
         }
@@ -29,21 +35,22 @@ namespace lab3.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(CreateBlogArticleModel viewModel)
+        public async Task<IActionResult> Create(CreateBlogArticleModel viewModel)
         {
             if (!ModelState.IsValid)
             {
                 return View(viewModel);
             }
 
-            if (InMemoryBlogStore.Exists(viewModel.Id))
+            if (await context.BlogArticles.AnyAsync(x => x.Id == viewModel.Id))
             {
-                ModelState.AddModelError(nameof(viewModel.Id), "Id must be unique.");
+                ModelState.AddModelError(nameof(viewModel.Id), "Id must be unique");
                 return View(viewModel);
             }
-
+            
             var entity = viewModel.ToEntity();
-            InMemoryBlogStore.Add(entity);
+            context.BlogArticles.Add(entity);
+            await context.SaveChangesAsync();
             return RedirectToAction(nameof(Article), new { id = entity.Id });
         }
     }
