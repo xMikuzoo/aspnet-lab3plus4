@@ -11,14 +11,14 @@ namespace lab3.Controllers
     {
         public async Task<IActionResult> Index()
         {
-            var entities = await context.BlogArticles.ToListAsync();
+            var entities = await context.Articles.ToListAsync();
             var viewModels = entities.Select(x => x.ToViewModel());
             return View(viewModels);
         }
 
         public async Task<IActionResult> Article(string id)
         {
-            var post = await context.BlogArticles.FirstOrDefaultAsync(x => x.Id == id);
+            var post = await context.Articles.FirstOrDefaultAsync(x => x.Id == id);
             if (post == null)
             {
                 return NotFound();
@@ -42,14 +42,14 @@ namespace lab3.Controllers
                 return View(viewModel);
             }
 
-            if (await context.BlogArticles.AnyAsync(x => x.Id == viewModel.Id))
+            if (await context.Articles.AnyAsync(x => x.Id == viewModel.Id))
             {
                 ModelState.AddModelError(nameof(viewModel.Id), "Id must be unique");
                 return View(viewModel);
             }
             
             var entity = viewModel.ToEntity();
-            context.BlogArticles.Add(entity);
+            context.Articles.Add(entity);
             await context.SaveChangesAsync();
             return RedirectToAction(nameof(Article), new { id = entity.Id });
         }
