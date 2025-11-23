@@ -13,6 +13,26 @@
 </article>
 <hr/>
 <section>
+    <h2>Comment (@Model.Comments.Count)</h2>
+    @if (Model.Comments.Count == 0)
+    {
+        <p>No comments yet.</p>
+    }
+    else
+    {
+        <ul class="list-unstyled">
+            @foreach (var x in Model.Comments)
+            {
+                <li class="mb-3 border-bottom pb-2">
+                    <strong>@x.Author</strong> <small> @x.CreatedAt.ToLocalTime()</small>
+                    <div>@x.Content</div>
+                </li>
+            }
+        </ul>
+    }
+</section>
+<hr/>
+<section>
     <h3>Add a comment</h3>
     @await Html.PartialAsync("AddComment", new lab3.Models.CreateBlogCommentModel { ArticleId = Model.Id })
 </section>

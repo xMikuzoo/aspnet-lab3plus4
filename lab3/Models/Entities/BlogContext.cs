@@ -10,6 +10,7 @@ public class BlogContext: DbContext
   protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
   {
     optionsBuilder.UseSqlite("Data Source=blog.db");
+    optionsBuilder.LogTo(Console.WriteLine, LogLevel.Information);
   }
   protected override void OnModelCreating(ModelBuilder modelBuilder)
   {

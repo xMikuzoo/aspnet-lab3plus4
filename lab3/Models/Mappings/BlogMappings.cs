@@ -8,7 +8,11 @@ namespace lab3.Models.Mappings
             Id = blogArticle.Id,
             Title = blogArticle.Title,
             Description = blogArticle.Description,
-            Content = blogArticle.Content
+            Content = blogArticle.Content,
+            Comments = blogArticle.Comments
+                .OrderByDescending(x => x.CreatedAt)
+                .Select(x => x.ToViewModel())
+                .ToList()
         };
 
         public static BlogArticle ToEntity(this CreateBlogArticleModel blogArticle) => new() {
@@ -23,6 +27,13 @@ namespace lab3.Models.Mappings
             Author = blogComment.Author,
             Content = blogComment.Content,
             CreatedAt = DateTime.UtcNow
+        };
+        
+        public static BlogCommentViewModel ToViewModel(this BlogComment blogComment) => new() {
+            Id = blogComment.Id,
+            Author = blogComment.Author,
+            Content = blogComment.Content,
+            CreatedAt = blogComment.CreatedAt
         };
     }
 }

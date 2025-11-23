@@ -18,7 +18,9 @@ namespace lab3.Controllers
 
         public async Task<IActionResult> Article(string id)
         {
-            var post = await context.Articles.FirstOrDefaultAsync(x => x.Id == id);
+            var post = await context.Articles
+                .Include(x => x.Comments)
+                .FirstOrDefaultAsync(x => x.Id == id);
             if (post == null)
             {
                 return NotFound();
